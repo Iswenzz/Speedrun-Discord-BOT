@@ -1,23 +1,26 @@
 ﻿using Discord;
-using Discord.Commands;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Speedrun_BOT
 {
     public class Server
     {
-        private Hashtable info = new Hashtable();
-        private ArrayList players = new ArrayList();
+        private Dictionary<string, string> Info { get; set; } = new Dictionary<string, string>();
+        private List<QueryPlayer> Players { get; set; } = new List<QueryPlayer>();
 
-        private byte[] PACKET_HEADER = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
+        public readonly byte[] PACKET_HEADER = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
 
+        /// <summary>
+        /// Query server informations.
+        /// </summary>
+        /// <param name="gameServerIP">The gameserver host ip.</param>
+        /// <param name="gameServerPort">The gameserver port.</param>
+        /// <returns></returns>
         public EmbedBuilder Query(string gameServerIP, int gameServerPort)
         {
             Socket client = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -32,23 +35,22 @@ namespace Speedrun_BOT
             StringBuilder response = new StringBuilder();
             byte[] bufferRecv = new byte[65565];
 
-            IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Parse(gameServerIP), 0);
+            _ = new IPEndPoint(IPAddress.Parse(gameServerIP), 0);
             client.Send(packet_send, SocketFlags.None);
 
             do
             {
                 int bytesReceived = client.Receive(bufferRecv);
                 response.Append(Encoding.ASCII.GetString(bufferRecv, 0, bytesReceived));
-            } while (client.Available > 0);
+            } 
+            while (client.Available > 0);
 
             string[] raw = response.ToString().Split("\n");
             string rawInfo = raw[1];
             string[] temp = rawInfo.Split("\\");
 
             for (int i = 1; i < temp.Length; i += 2)
-            {
-                info.Add(temp[i], Regex.Replace(temp[i + 1], "(\\^)([0-9])", ""));
-            }
+                Info.Add(temp[i], Regex.Replace(temp[i + 1], "(\\^)([0-9])", ""));
 
             for (int i = 2; i < raw.Length; i++)
             {
@@ -65,46 +67,45 @@ namespace Speedrun_BOT
                     else
                         name += rawPlayer[z];
                 }
-               
-                Player player = new Player(rawPlayer[1], rawPlayer[0], name.Replace("\"", ""));
-                players.Add(player);
+                QueryPlayer player = new QueryPlayer(rawPlayer[1], rawPlayer[0], name.Replace("\"", ""));
+                Players.Add(player);
             }
 
-            EmbedBuilder em = new EmbedBuilder();
-            em.Title = info["sv_hostname"].ToString();
-            em.AddField("Map", info["mapname"].ToString(), false);
-            em.Color = new Color(164, 22, 248);
+            EmbedBuilder em = new EmbedBuilder
+            {
+                Title = Info["sv_hostname"].ToString(),
+                Color = new Color(164, 22, 248),
+            };
+            em.AddField("Map", Info["mapname"].ToString(), false);
 
             string playerDetails = "No players Online";
-
-            if (players.Count > 0)
+            if (Players.Count > 0)
             {
                 playerDetails = "";
-
-                foreach (Player p in players)
-                {
+                foreach (QueryPlayer p in Players)
                     playerDetails += p.nickname + "\n";
-                }
             }
-
             em.AddField("Players", playerDetails, false);
             em.Build();
 
             return em;
         }
-    }
 
-    public class Player
-    {
-        public int points;
-        public int ping;
-        public string nickname;
-
-        public Player(string ping, string points, string nickname)
+        /// <summary>
+        /// Player data from server query.
+        /// </summary>
+        public struct QueryPlayer
         {
-            this.ping = int.Parse(ping);
-            this.points = int.Parse(points);
-            this.nickname = nickname;
+            public int points;
+            public int ping;
+            public string nickname;
+
+            public QueryPlayer(string ping, string points, string nickname)
+            {
+                this.ping = int.Parse(ping);
+                this.points = int.Parse(points);
+                this.nickname = nickname;
+            }
         }
     }
 }

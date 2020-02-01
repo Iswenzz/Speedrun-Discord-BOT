@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Reflection;
+using System.IO;
 using Discord;
 using Discord.WebSocket;
 using Discord.Commands;
@@ -10,44 +11,63 @@ namespace Speedrun_BOT
 {
     public class Program
     {
-        private CommandService commands;
-        private DiscordSocketClient client;
-        private IServiceProvider services;
+        private CommandService Commands { get; set; }
+        private DiscordSocketClient Client { get; set; }
+        private IServiceProvider Services { get; set; }
 
-        static void Main(string[] args) => new Program().Start().GetAwaiter().GetResult();
+        public static void Main() => new Program().Start().GetAwaiter().GetResult();
 
+        /// <summary>
+        /// Start the discord BOT.
+        /// </summary>
+        /// <returns></returns>
         public async Task Start()
         {
-            client = new DiscordSocketClient();
-            commands = new CommandService();
-            services = new ServiceCollection().BuildServiceProvider();
+            Client = new DiscordSocketClient();
+            Commands = new CommandService();
+            Services = new ServiceCollection().BuildServiceProvider();
+            string token_path = AppContext.BaseDirectory + "token";
+
+            if (!File.Exists(token_path))
+                throw new FileNotFoundException($"File '{token_path}' is missing.");
 
             await InstallCommands();
-            await client.LoginAsync(TokenType.Bot, "TOKEN HERE");
-            await client.StartAsync();
+            await Client.LoginAsync(TokenType.Bot, File.ReadAllText(token_path));
+            await Client.StartAsync();
+
+            Console.WriteLine("Speedrun BOT - Started");
 
             await Task.Delay(-1);
         }
 
-        public async Task InstallCommands()
+        /// <summary>
+        /// Setup commands callback.
+        /// </summary>
+        /// <returns></returns>
+        private async Task InstallCommands()
         {
-            client.MessageReceived += HandleCommand;
-            await commands.AddModulesAsync(Assembly.GetEntryAssembly());
+            Client.MessageReceived += HandleCommand;
+            await Commands.AddModulesAsync(Assembly.GetEntryAssembly());
         }
 
-        public async Task HandleCommand(SocketMessage messageParam)
+        /// <summary>
+        /// Commands callback (process user messages).
+        /// </summary>
+        /// <param name="messageParam">Message from user.</param>
+        /// <returns></returns>
+        private async Task HandleCommand(SocketMessage messageParam)
         {
             int argPos = 0;
-            var message = messageParam as SocketUserMessage;
+            SocketUserMessage message = messageParam as SocketUserMessage;
 
             if (message == null)
                 return;
 
-            if (!(message.HasCharPrefix('!', ref argPos) || message.HasMentionPrefix(client.CurrentUser, ref argPos)))
+            if (!(message.HasCharPrefix('!', ref argPos) || message.HasMentionPrefix(Client.CurrentUser, ref argPos)))
                 return;
 
-            var context = new CommandContext(client, message);
-            var result = await commands.ExecuteAsync(context, argPos, services);
+            CommandContext context = new CommandContext(Client, message);
+            IResult result = await Commands.ExecuteAsync(context, argPos, Services);
 
             if (!result.IsSuccess)
                 await context.Channel.SendMessageAsync(result.ErrorReason);
