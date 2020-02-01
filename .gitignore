@@ -2,3 +2,11 @@
 obj/
 
 bin/Debug/netcoreapp2.0/
+
+bin/Release/netcoreapp2.0/
+
+opencoverCoverage.xml
+
+mp_deathrun_epicfail_fastesttimes_ns0_190.txt
+
+COVERAGE.sh
