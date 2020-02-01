@@ -6,7 +6,9 @@ platform: AnyCPU
 
 before_build:
 - cmd: >-
-    msbuild.exe
+    dotnet restore
+    
+    dotnet build
 
 build:
   verbosity: minimal
