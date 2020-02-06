@@ -60,7 +60,7 @@ namespace Speedrun_BOT
             int argPos = 0;
             SocketUserMessage message = messageParam as SocketUserMessage;
 
-            if (message == null)
+            if (message == null || message.Channel.Id != 335742969753632788)
                 return;
 
             if (!(message.HasCharPrefix('!', ref argPos) || message.HasMentionPrefix(Client.CurrentUser, ref argPos)))

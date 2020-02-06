@@ -16,7 +16,9 @@ namespace Speedrun_BOT
         public EmbedBuilder SendTimes(string map, string speed, string way)
         {
             string text = "";
-            using (StreamReader reader = new StreamReader(map + "_fastesttimes_" + way + "_" + speed + ".txt"))
+            string timeFolder = "/home/cod4/mods/adr_speedrun/map_times/";
+            using (StreamReader reader = new StreamReader(
+                timeFolder + map + "_fastesttimes_" + way + "_" + speed + ".txt"))
                 text = reader.ReadToEnd();
             string[] line = text.Split('\n');
 
