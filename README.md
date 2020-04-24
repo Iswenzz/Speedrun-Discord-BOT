@@ -9,6 +9,16 @@ The Speedrun Discord BOT lets users within the Sr- discord server to see the top
 
 ![](https://i.imgur.com/vFeTvnX.png)
 
+## Commands
+```text
+!times <map name> <speed> <way>
+Show map times: <speed> = 210 or 190, <way> is ns0 ns1 ns2.. or s0 s1 s2..
+!pb <discord name>
+Show personal best: <discord name> = @Iswenzz#3906
+!speedrun
+Show the current map and players connected in SR Speedrun
+```
+
 ## Building
 1. [Visual Studio](https://visualstudio.microsoft.com/)
 
