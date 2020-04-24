@@ -7,8 +7,14 @@
 
 The Speedrun Discord BOT lets users within the Sr- discord server to see the top 30 ranks and times for a specified map and route. This bot was created for the sole purpose of convienience for the users; Being able to view map times without having to launch the game was an aspect that I wanted to provide for players who want to keep track of world records. 
 
-Command usage and other information can be found down below.
-
 ![](https://i.imgur.com/vFeTvnX.png)
 
-Credits: Sheep Wizard, Iswenzz
+## Building
+1. [Visual Studio](https://visualstudio.microsoft.com/)
+
+### [Download](https://github.com/Iswenzz/Speedrun-Discord-BOT/releases)
+
+## Contributors:
+***Note:*** If you would like to contribute to this repository, feel free to send a pull request, and I will review your code. Also feel free to post about any problems that may arise in the issues section of the repository.
+
+<a href="https://github.com/SheepWizard"><img src="https://avatars3.githubusercontent.com/u/8878844?s=100&v=4" height=64 style="border-radius: 50%"></a>
